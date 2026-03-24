@@ -1,0 +1,111 @@
+## Mail _ Server configuration (Postfix).
+step1: Install Postfix
+    sudo apt update; sudo apt install postfix
+    *make sure to select "internet site" when prompted.
+
+step2: configure core settings
+    edit the /etc/postfix/main.cf with the following;
+    
+myhostname = mail.yourdomain.com                                    #Your servers full domain name , acts like the return address for emails sent.
+mydomain = yourdomain.com                                           #Your primary domain your server is managing emails for.
+myorigin = $mydomain                                                #Defines the domain appended to unqualified email addresses 
+mydestination = $myhostname, localhost.$mydomain, $mydomain         #Lists domains your server accepts emails for. 
+mynetworks = 127.0.0.0/8 [::1]/128                                  #Ristricts ips that can send emails with out authentication
+inetprotocols = all                                                 #Allowed IP versions ipv4 & ipv6
+mail_spool_directory = /var/spool/mail                              #Defines where the incoming emails are stored.
+
+#storage opptimization
+By default, Postfix stores mails in /var/spool/mail, but for
+High-traffic setups, consider creating a sparate partition, 
+ie, /mnt/nvme/postfix and add this to the 'main.cf'
+
+queue_directory = /mnt/nvme/postfix
+      
+#security 
+smtp_banner = $myhostname ESMTP
+*This prevents smtp from broadcasting that it's running postfix, making 
+harder to exploit its known vulnabilities.
+
+#Test your configuration.
+sudo systemctl reload postfix                           #check for errors,
+sudo journalctl -u postfix                              #ie those with 'fatal' & 'warning'
+
+*Keep in mind that after fixing the errors in main.cf its better to restart Postfix with;
+sudo systemctl restart postfix
+
+
+#checking the Mail Queue.
+When emails pile up undelivered, the postfix mail queue acts like a
+digital waiting room. messages sit patiently until they can be proceed.
+Here is how to keep this process running smoothly.
+ a) Monitor Active Queue
+    postqueue -p                                                #This is a postfix built-in tool to check the linux mail queue.
+    
+This lists every email in the check mail queue, showing:
+
+Sender/Recipient: Who’s waiting to deliver/receive
+Queue ID: Unique identifier for tracking
+Deferral Reason: Why delivery stalled (network issues, DNS errors, etc.)
+
+
+ b) Troubleshoot Stuck emails
+    Spot a message stuck in “deferred” status? Investigate with:
+    postcat -q [Queue_ID] 
+    
+This reveals the email’s full headers and error details. Common fixes include:
+
+Updating DNS records if recipient domains changed
+Adjusting mydestination if accepting mail for unconfigured domains
+Increasing timeout limits for slow remote servers
+
+
+ c) Clear Queue Safely
+    use the command bellow;
+    postsuper -d ALL deffered
+*caution: This deletes undelivered messages! Only use it after backing up critical emails.
+
+
+
+
+#Test Mail Server
+The mail server is up and running , now lets test it with real world 
+to ensure that messages flow smoothly between the sender & receiver.
+install the following tools;
+sudo apt install dnsutils mailutils 
+  
+  step1:verify DNS Records
+  
+dig MX yourdomain.com +short  
+
+expect the output;
+10 mail.yourdomain.com 
+
+if not the above output, update your DNS settings to point to your server's IP. this tells other servers where to deliver emails.
+
+
+step2: Send a Test email.
+    use the mail command to send the an email from your server.
+echo "check mail server" | mail -s "Server Test" yourname@example.com
+
+Replace yourname@example.com with an email account you control like Gmail, proton or outlook etc,
+
+
+#check Email Delivery
+Incase the email doesn't arrive within 5 mins
+    1, inspect the Mail Queue 
+       postqueue -p
+       
+    2, Review the system journal for error logs
+       sudo journalctl -u -f postfix | grep 'status=sent'
+       
+      
+#Troubleshooting Pro Tip;
+Test locally first! Send an email between two users on your server:
+echo "Local Test" | mail -s "Internal Test" username@yourdomain.com
+
+check delivery with;
+sudo tail -f /var/mail/username
+
+
+
+#Secure Linux Mail Server
