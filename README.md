@@ -1,11 +1,12 @@
 # Linux-Mail-server-Postfix
 Postfix mail server configuration on a Linux system.
 
-install postfix
 ```bash
+#install postfix
+
 sudo apt install postfix
-```
-edit postifix
-```bash
+
+#edit postifix
+
 nano /etc/postfix/main.cf
 ```
