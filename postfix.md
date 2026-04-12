@@ -1,4 +1,4 @@
-***Postfix configuration**
+**Postfix configuration**
 
 install postfix, During the installation, select “Internet Site” when prompted:
 ```bash
@@ -102,7 +102,7 @@ echo "Local test" | mail -s "Internal Test" user@yourdomain.com
 sudo tail -f /var/log/mail.log
 ```
 
-***Security Configuration:**
+**Security Configuration:**
 ```bash
 # install the required packages:
 sudo apt install libsasl2-modules sasl2-bin -y
