@@ -140,4 +140,24 @@ relay_domains = yourdomain.com, example.net
 smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination
 ```
 
+Integrate spamassassin with Postfix:
+Modify /etc/postfix/master.cf with the lines below:
+```bash
+smtp inet n - - - - smtpd  
+  -o content_filter=spamassassin  
+
+spamassassin unix - n n - - pipe  
+  user=spamd argv=/usr/bin/spamc -f -e /usr/sbin/sendmail -oi -f ${sender} ${recipient}
+```
+
+Restart postfix:
+```bash 
+sudo systemctl restart postfix
+#
+sudo systemctl status postfix
+#
+# confirm that its running and if not check the main.cf for errors.
+```
+
+
 

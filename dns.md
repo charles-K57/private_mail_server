@@ -32,7 +32,7 @@ v=DMARC1; p=quarantine; rua=mailto:admin@yourdomain.com
 DNS Records verification:
 ```bash
 # 1.vist the mxtool online
-[mxtool](https://mxtoolbox.com)
+https://mxtoolbox.com
 
 # 2. use the dig command 
 dig MX mail.yourdomain.com +short
