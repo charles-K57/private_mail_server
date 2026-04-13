@@ -1,11 +1,6 @@
-# Linux-Mail-server-Postfix
-Postfix mail server configuration on a Linux system.
+# Private mail_server with postfix, dovecot & spamassassin.
 
-install postfix
-```bash
-sudo apt install postfix
-```
-edit postifix
-```bash
-nano /etc/postfix/main.cf
-```
+# Requirements
+1 Domain name
+2 Linux server
+3 Public ip address
