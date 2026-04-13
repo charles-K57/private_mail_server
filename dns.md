@@ -1,4 +1,5 @@
 **DNS Configuration**
+
 Create an MX Record
 ```bash
 mail.yourdomain.com
@@ -31,7 +32,7 @@ v=DMARC1; p=quarantine; rua=mailto:admin@yourdomain.com
 DNS Records verification:
 ```bash
 # 1.vist the mxtool online
-<https://mxtoolbox.com>
+[mxtool](https://mxtoolbox.com)
 
 # 2. use the dig command 
 dig MX mail.yourdomain.com +short
